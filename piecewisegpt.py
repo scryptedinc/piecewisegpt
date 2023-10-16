@@ -2,13 +2,9 @@ import os
 import random
 import re
 import json
-from jsonfinder import jsonfinder
-from typing import List
 import openai
-from openai_model_details import OPENAI_MODEL_DETAILS
 import tiktoken
-
-# from langchain import LLMEmbedding
+from typing import List, Dict
 from dotenv import load_dotenv
 
 
@@ -138,13 +134,14 @@ class PieceWiseGPT:
         self.token_embedding_rate = total_chars / total_tokens
 
     def _load_prompt(self):
+        # Best prompt so far
         with open(
             "./prompts/3_get_last_semantic_boundary.txt", "r", encoding="utf-8"
         ) as file:
             self.prompt = file.read()
 
     def _slice(self):
-        available_input_tokens = self.window_size // 8
+        available_input_tokens = self.window_size // 8 # general use-case is much smaller slices for attention
         available_input_tokens -= len(self.llm_encoding.encode(self.prompt))
         available_input_tokens -= 128  # padding
 
@@ -165,6 +162,7 @@ class PieceWiseGPT:
 
             chunk = self._get_semantically_bound_chunk(prechunk)
 
+            # Retry if GPT didn't return a predictable JSON chunk
             if not chunk:
                 continue
 
