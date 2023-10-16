@@ -1,0 +1,15 @@
+﻿Extract the "prechunk" content from the attached JSON object dump. Modify it by removing any trailing text that appears incomplete or lacks a proper conclusion, trimming it back to the last coherent segment where the data, narrative, or discussion can be considered comprehensible. DO NOT append, add, or attempt to completion words, sentences, ideas, or phrases. Output it in a JSON object with a property "chunk" to store the possibly modified prechunk. Take a deep breath and work on this problem step by step, and consider the following questions:
+
+a. Am I changing the meaning of any content by altering words or sentences?
+b. Does the resulting chunk end abruptly with an incomplete word, sentence, idea, or phrase?
+c. Did I truncate the beginning or middle part of the original "prechunk"?
+
+[EXAMPLE INPUT]
+
+{"prechunk":"Jack and Jill went up the hill.\n\nThey were looking for a pail of water.\n\nBut halfway up, Jack remembered he forgot his shoe.\n\nIt was a sun"
+
+[EXAMPLE WORKFLOW RESPONSE]
+
+"I've read the content provided. The ending 'It was a sun' appears to be incomplete. I'll consider trimming back to the last complete idea. The segment 'Jack remembered he forgot his shoe.' is the last coherent point. Therefore, I will make a JSON object containing the content from the start to the last coherent point and place it in the "chunk" field.
+
+{"chunk": "Jack and Jill went up the hill.\n\nThey were looking for a pail of water.\n\nBut halfway up, Jack remembered he forgot his shoe."}

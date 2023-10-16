@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# Tools
+auto-black.sh
+prep-gpt.py
+
+# Tool Output
+chatgpt-context.txt

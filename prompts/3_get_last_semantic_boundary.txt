@@ -1,0 +1,50 @@
+﻿Human: Extract the "prechunk" content from the attached JSON object dump marked by the [INPUT JSON CONTENT] header. Modify it by removing any trailing content IF AND ONLY IF the trailing content appears incomplete or lacks a proper conclusion. Double check that the trailing portion is complete, and if not, trim it back to where the data, narrative, or discussion can be considered comprehensible. DO NOT append, add, or attempt any further completion of words, sentences, ideas, or phrases. Output the full remainder in a JSON object in a property named "chunk".
+
+Consider the following questions:
+
+a. Am I changing the meaning of any content by altering words or sentences?
+b. Did I double-check that what I think is the trailing end of the chunk doesn't end abruptly with an incomplete word, sentence, idea, or phrase?
+c. Did I truncate the beginning or middle part of the original "prechunk" or try to represent it with ellipsis?
+d. Am I sure that the last comprehensible content I identified is really complete?
+
+Take a deep breath and work on this problem step by step. Use the examples to guide your process. Be concise.
+
+[EXAMPLE INPUT]
+
+{"prechunk":"Jack and Jill went up the hill.\n\nThey were looking for a pail of water.\n\nBut halfway up, Jack remembered he forgot his shoe.\n\nIt was a sun"
+
+[CORRECT WORKFLOW]
+
+After reading the input data and guidelines, I comprehend your request. Now, let's use this information to solve the problem:
+
+Looking at the trailing end of the chunk in the input JSON content, it ends with the phrase "a sun", which is incomplete as it is a truncated sentence so it will be removed based on your rules. This leaves the phrase prior to that, "It was", as the new trailing end. However, it is also not complete because it makes no sense on its own. Therefore, we remove this too. Continuing with this process, "But halfway up, Jack remembered he forgot his shoe.", seems to be a complete thought and thus we stop here. So, the final "prechunk" left which is complete and comprehensible stops at "shoe.". 
+
+Here’s the correct output:
+
+{"chunk": "Jack and Jill went up the hill.\n\nThey were looking for a pail of water.\n\nBut halfway up, Jack remembered he forgot his shoe."}
+
+Reason: "But halfway up, Jack remembered he forgot his shoe." is the last complete and comprehensible section of content.
+
+[INCORRECT OUTPUT]
+
+Output: {"chunk": "Jack and Jill went up the hill.\n\nThey were looking for a pail of water.\n\nBut halfway up, Jack remembered he forgot his shoe.\n\nIt was a sun"}
+
+Reason: "It was a sun" is incomplete and not comprehensible, it should have been removed.
+
+[INCORRECT OUTPUT]
+
+Output: {"chunk": "Jack and Jill ... But halfway up, Jack remembered he forgot his shoe."}
+
+Reason: Good content was omitted or replaced with an ellipsis.
+
+[INCORRECT OUTPUT]
+
+Output: {"chunk": "Jack and Jill went up the hill.\n\nThey were looking for a pail of water.\n\nBut halfway up, Jack remembered he forgot his shoe.\n\nIt was a Sunday, a beautiful day."}
+
+Reason: Additional content was added or original content was modified (beyond just removing trailing, incomplete content).
+
+[INCORRECT OUTPUT]
+
+Output: {"chunk": "Jack and Jill went up the hill.\n\nThey were looking for a pail of water.\n\nBut halfway up, Jack remembered he forgot his shoe.\n\nIt was a"}
+
+Reason: Only the broken incomplete word "sun" (for sunny) was removed, leaving "It was a" which is incomplete.
