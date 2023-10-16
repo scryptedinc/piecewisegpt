@@ -1,6 +1,6 @@
-# PieceWiseGPT - The Smarter Splitter Upper
+# PieceWiseGPT - The Cross-Language Smarter Splitter Upper
 
-`PieceWiseGPT` is a Python wrapper for OpenAI GPT models that allows users to slice longer content into manageable chunks by recognizing the "semantic boundaries" at the end of content. For instance, if a sentence is prematurely cut by the slicer, GPT will detect it and truncate the content to an earlier, logical starting point. This capability seems consistent across languages.
+`PieceWiseGPT` is a Python wrapper for OpenAI GPT models that allows users to slice longer content into manageable chunks by recognizing the "semantic boundaries" at the end of content, regardless of language. For instance, if a sentence is prematurely cut by the slicer, GPT will detect it and truncate the content to an earlier, logical starting point. If the content is composed of multiple languages this capability still seems consistent.
 
 **Why would you want to do this?**
 
