@@ -1,5 +1,7 @@
 # PieceWiseGPT - The Cross-Language Smarter Splitter Upper
 
+***WARNING: This is experimental and I'm fairly sure demonstrates that GPT-4 "casts" other languages to English tokens through a separate translation layer before processing, as the semantic boundary detection fails readily on Japanese samples versus English. The German sample does fairly well.***
+
 `PieceWiseGPT` is a Python wrapper for OpenAI GPT models that allows users to slice longer content into manageable chunks by recognizing the "semantic boundaries" at the end of content, regardless of language. For instance, if a sentence is prematurely cut by the slicer, GPT will detect it and truncate the content to an earlier, logical starting point. If the content is composed of multiple languages this capability still seems consistent.
 
 **Why would you want to do this?**
