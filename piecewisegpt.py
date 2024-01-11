@@ -24,6 +24,8 @@ class PieceWiseGPT:
     """
 
     CONTEXT_WINDOW_SIZE_DEFAULT = 8192
+    CONTEXT_DIVISOR = 8 # any number greater or equal to 2 (splits the input context window size)
+    TOKEN_PADDING = 128 # less tokens to "pad" for input; prevents
     LLM_MODEL_VERSION_MIN = "gpt-4"
     TOKEN_ENCODING_RATE_DEFAULT = 4.0 / 3.0  # English w/ Latin characters avg
 
@@ -43,6 +45,7 @@ class PieceWiseGPT:
         self.llm_model_details: Dict[str, Any] = {}
         self.llm_encoding: None
         self.token_encoding_rate: float = self.TOKEN_ENCODING_RATE_DEFAULT
+        self.attempts = 0 # total number of attempts required to slice the content
         self.chunks: List[str] = []
 
         self._preprocess()
@@ -141,15 +144,19 @@ class PieceWiseGPT:
             self.prompt = file.read()
 
     def _slice(self):
-        available_input_tokens = self.window_size // 8 # general use-case is much smaller slices for attention
+        available_input_tokens = (
+            self.window_size // self.CONTEXT_DIVISOR
+        )  # general use-case is much smaller slices for attention
         available_input_tokens -= len(self.llm_encoding.encode(self.prompt))
-        available_input_tokens -= 128  # padding
+        available_input_tokens -= self.TOKEN_PADDING  # padding
 
         char_count = int(available_input_tokens * self.token_embedding_rate)
 
         content = self.content
 
         while content:
+            self.attempts += 1
+
             # If the remaining content is less than what we need to slice
             # we can just append it to the end of the chunks list
             if len(content) <= char_count:
@@ -164,6 +171,7 @@ class PieceWiseGPT:
 
             # Retry if GPT didn't return a predictable JSON chunk
             if not chunk:
+                # this increments attempts
                 continue
 
             # Avoid infinite loops due to unpredictably long whitespace

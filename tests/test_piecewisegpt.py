@@ -1,5 +1,7 @@
 import unittest
 import os
+import time
+from pprint import pprint
 from unittest import mock
 import openai
 from piecewisegpt import PieceWiseGPT
@@ -36,40 +38,50 @@ class TestPieceWiseGPT(unittest.TestCase):
             PieceWiseGPT(self.content)
 
     def test_language_samples(self):
-        with open(
-            os.path.join(os.path.dirname(__file__), "data", "sample_english.txt"),
-            "r",
-            encoding="utf-8",
-        ) as f:
-            self.content = f.read()
+        # Calculate the anticipated time for the current content
+        gpt4_seconds_per_char = 0.06223 # GPT-4 parsing constant
 
-        # Instantiate PieceWiseGPT class (English)
-        pwg = PieceWiseGPT(self.content)  # or whatever parameters you require
-        print(pwg.get())
+        # Load sample files
+        sample_files = ["sample_english.txt", "sample_german.txt", "sample_japanese.txt"]
+        total_chunks = 0
+        total_attempts = 0
+        total_bytes = sum(os.path.getsize(os.path.join(os.path.dirname(__file__), "data", filename)) for filename in sample_files)
 
-        with open(
-            os.path.join(os.path.dirname(__file__), "data", "sample_german.txt"),
-            "r",
-            encoding="utf-8",
-        ) as f:
-            self.content = f.read()
+        anticipated_time = total_bytes * gpt4_seconds_per_char
+        print(f"Anticipated time based on given data: {anticipated_time:.2f} seconds")
+        
+        total_start_time = time.time()
+        for sample in sample_files:
+            print(f"Testing {sample.split('_')[1].capitalize()} sample...")
 
-        # Instantiate PieceWiseGPT class (German)
-        pwg = PieceWiseGPT(self.content)
-        print(pwg.get())
+            with open(os.path.join(os.path.dirname(__file__), "data", sample), "r", encoding="utf-8") as f:
+                self.content = f.read()
 
-        with open(
-            os.path.join(os.path.dirname(__file__), "data", "sample_japanese.txt"),
-            "r",
-            encoding="utf-8",
-        ) as f:
-            self.content = f.read()
+            start_time = time.time()
+            pwg = PieceWiseGPT(self.content)
+            chunks = pwg.get()
+            num_chunks = len(chunks)
+            total_chunks += num_chunks
+            total_attempts += pwg.attempts
+            execution_time = time.time() - start_time
 
-        # Instantiate PieceWiseGPT class (Japanese)
-        pwg = PieceWiseGPT(self.content)
-        print(pwg.get())
+            # Pretty print the chunks
+            for chunk_id, chunk in enumerate(chunks):
+                print(f"Chunk #{chunk_id}")
+                print("----------------------")
+                pprint(chunk)
 
-        # ... (additional tests can be added as needed)
+            print(f"Semantic chunks: {num_chunks}")
+            print(f"Required attempts: {pwg.attempts}")
+            print(f"Execution time for {sample}: {execution_time:.2f} seconds")
+            print("----------------------")
+
+        total_execution_time = time.time() - total_start_time
+        print(f"Total semantic chunks: {total_chunks}")
+        print(f"Total required attempts: {total_attempts}")
+        print(f"Total execution time: {total_execution_time:.2f} seconds")
+
+    # ... (additional tests can be added as needed)
 
 
 if __name__ == "__main__":

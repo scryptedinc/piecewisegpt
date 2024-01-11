@@ -6,15 +6,134 @@ In a previous session ChatGPT has assisted me with writing code my for Python pr
 
 [Target Python Version: 3.10.6, Ignore Backwards Compatibility]
 
+
+[README.md]
+# PieceWiseGPT - The Cross-Language Smarter Splitter Upper
+
+`PieceWiseGPT` is a Python wrapper for OpenAI GPT models that allows users to slice longer content into manageable chunks by recognizing the "semantic boundaries" at the end of content, regardless of language. For instance, if a sentence is prematurely cut by the slicer, GPT will detect it and truncate the content to an earlier, logical starting point. If the content is composed of multiple languages this capability still seems consistent.
+
+**Why would you want to do this?**
+
+Looping over content in smaller, logical chunks with GPT is a great way to extract and manipulate data without losing details due to lack of attention/focus in larger context windows.
+
+**Use Case Example:**
+
+You're using GPT to loop over a chapter of a book, and want to classify entities, objects, events, relationships, colors, environments, and so on but you notice when you try to do too much at once that details get lost. By iterating over smaller portions, that have been divided cleanly so semantic meaning is preserved, you can.
+
+> **Note**: Currently, the `gpt-3.5-turbo` model is not supported due to prompt compatibility reasons. It is advised to use `gpt-4` for best results.
+
+## Installation
+
+1. **Dependencies**: Ensure you have the necessary pip packages installed:
+```bash
+pip install -r requirements.txt
+```
+
+2. **Environment Setup**: Copy the `.env.example` file to `.env` and fill in your `OPENAI_API_KEY`:
+```bash
+cp .env.example .env
+```
+Then edit `.env` and provide your API key.
+
+> **Note**: Alternatively, PieceWiseGPT will also search the environment for the required values if the .env file is not found, such as when using this as a module in another project.
+
+## Tests
+
+```bash
+python -m unittest discover tests
+```
+
+## Usage
+
+Using `PieceWiseGPT` is straightforward:
+
+```python
+from piecewisegpt import PieceWiseGPT
+
+pwg = PieceWiseGPT("Your long content here...")
+# wait... (sorry about the wait)
+chunks = pwg.get()
+print(chunks)
+```
+
+## How It Works
+
+Here's a breakdown of the main functionalities:
+
+- **Initialization**: The constructor (`__init__`) takes in a content string. Upon instantiation, the content undergoes preprocessing, API validation, calculation of the token encoding rate, loading of the necessary GPT prompt, and then slicing.
+
+- **Preprocessing**: Trims leading and trailing whitespace from the content.
+
+- **API Validation**: Checks for the availability and correctness of OpenAI API keys and the LLM model version. Also fetches the list of available models.
+
+- **Token Encoding Rate Calculation**: Determines the token to character conversion rate. This can vary based on the language and content. Fun theory: ChatGPT referenced a theory that agglutinative languages have the worse encoding rates.
+
+- **Prompt Loading**: Loads a GPT prompt that instructs the model on how to find logical semantic boundaries in the content. There are several attempts in the ./prompts/ folder to look over.
+
+- **Slicing**: The main logic that slices the content based on the computed token encoding rate and the GPT prompt. The slicing window is approximately 4x smaller than the actual available window
+
+- **Chunk Retrieval**: Finally, the `get` method allows the user to fetch the processed chunks as a list of strings.
+
+## Project Organization
+
+- `README.md`: This file.
+- `__init__.py`: Package initializer.
+- `openai_model_details.py`: Contains a method to get the maximum tokens for a given model.
+- `piecewisegpt.py`: The main module containing the `PieceWiseGPT` class and its methods.
+- `prompts/`: Directory containing various prompt files to instruct the GPT models.
+- `tests/`: Contains unit tests for the `PieceWiseGPT` class.
+
+## Test Data
+
+- `sample_english.txt` an excerpt from Critique of Pure Reason by Immanuel Kant (English)
+- `sample_german.txt` an excerpt from Critique of Pure Reason by Immanuel Kant (German)
+- `sample_japanese.txt` an excerpt from Wikipedia from the article about 2channel (Japanese)
+
+## Future (Hopeful) Improvements
+
+- Making it work with gpt-3.5-turbo is THE DREAM
+- Let the user specify a callback to execute whenever a chunk is processed, rather than wait for all chunks to finish
+- Better offline semantic boundary detection (give the LLMs the best chance, right?) - easy in English, actually.
+- Changes to the constructor: overriding the LLM model, changing window slicing sizes, etc
+- Improved few-shot prompt methodology
+- Improved ChatCompletion methodology
+- Better sampling and chunk size prediction
+
+## Contributions
+
+Contributions to improve the project are always welcome. Please ensure your code adheres to PEP8 standards and is self-documenting. For any bugs or feature requests, feel free to open an issue.
+
+## License
+
+[MIT License](LICENSE)
+
+## Authors
+
+Tim Cotten <tim@scryptedinc.com>, Scrypted Inc., & ChatGPT with GPT-4 by OpenAI
+
+## Contact
+
+@cottenio
+
+## AI Generated
+
+ChatGPT with GPT-4 was used in the creation and documentation of this project. Humans apparently are just the wetware layer for the Singularity.
+
+---
+
+**Important**: Always remember to keep your `OPENAI_API_KEY` confidential and never expose it in public repositories or other insecure locations. The .env file is in .gitignore for a reason. Don't submit your .env file!
+
 [Project Organization]
 README.md
 __init__.py
+chatgpt_context.txt
 openai_model_details.py
 piecewisegpt.py
 prompts/
     1_get_last_semantic_boundary.txt
     2_get_last_semantic_boundary.txt
     3_get_last_semantic_boundary.txt
+requirements.txt
 tests/
     __init__.py
     data/
@@ -25,16 +144,16 @@ tests/
 
 [Definitions]
 .\openai_model_details.py:31:    def get_max_tokens(model_name)
-.\piecewisegpt.py:34:    def __init__(self, content: str)
-.\piecewisegpt.py:58:    def _preprocess(self)
-.\piecewisegpt.py:72:    def _validate_api(self)
-.\piecewisegpt.py:119:    def _token_encoding_rate(self)
-.\piecewisegpt.py:140:    def _load_prompt(self)
-.\piecewisegpt.py:146:    def _slice(self)
-.\piecewisegpt.py:179:    def _get_semantically_bound_chunk(self, txt)
-.\piecewisegpt.py:209:    def extract_embedded_json(self, text)
-.\piecewisegpt.py:230:    def get(self) -> List[str]
-.\piecewisegpt.py:15:class PieceWiseGPT:
+.\piecewisegpt.py:32:    def __init__(self, content: str)
+.\piecewisegpt.py:56:    def _preprocess(self)
+.\piecewisegpt.py:70:    def _validate_api(self)
+.\piecewisegpt.py:117:    def _token_encoding_rate(self)
+.\piecewisegpt.py:138:    def _load_prompt(self)
+.\piecewisegpt.py:145:    def _slice(self)
+.\piecewisegpt.py:181:    def _get_semantically_bound_chunk(self, txt)
+.\piecewisegpt.py:211:    def extract_embedded_json(self, text)
+.\piecewisegpt.py:232:    def get(self) -> List[str]
+.\piecewisegpt.py:11:class PieceWiseGPT:
 .\prep-gpt.py:8:    def parse_gitignore()
 .\prep-gpt.py:21:    def tree(directory, padding)
 .\prep-gpt.py:42:    def get_type_hint(node)
@@ -49,241 +168,83 @@ tests/
 .\tests\test_piecewisegpt.py:38:    def test_language_samples(self)
 .\tests\test_piecewisegpt.py:8:class TestPieceWiseGPT:
 
-[CONTENT OF piecewisegpt.py]
+[CONTENT OF tests/test_piecewisegpt.py]
+import unittest
 import os
-import random
-import re
-import json
-from jsonfinder import jsonfinder
-from typing import List
+from unittest import mock
 import openai
-from openai_model_details import OPENAI_MODEL_DETAILS
-import tiktoken
-
-# from langchain import LLMEmbedding
-from dotenv import load_dotenv
+from piecewisegpt import PieceWiseGPT
 
 
-class PieceWiseGPT:
-    """
-    PieceWiseGPT slices a given content string into logical pieces to fit within
-    a GPT context window.
+class TestPieceWiseGPT(unittest.TestCase):
+    def setUp(self):
+        # This method will run before every test
+        self.content = "  This is a sample content.  "
 
-    Attributes:
-    - content (str): The input content string.
-    - window_size (int): The desired context window size.
-    - llm_model (str): The OpenAI LLM model version.
-    - llm_encoding (?): An object for encoding a specific llm_model
-    - token_encoding_rate (float): The ratio of tokens to source characters
-    - prompt (str): A GPT prompt for finding logical semantic boundaries
-    - chunks (List[str]): The resultant chunks after processing.
-    """
+    def test_preprocess(self):
+        """Test preprocessing of content"""
+        pwg = PieceWiseGPT(self.content)
+        self.assertEqual(pwg.content, "This is a sample content.")
 
-    CONTEXT_WINDOW_SIZE_DEFAULT = 8192
-    LLM_MODEL_VERSION_MIN = "gpt-4"
-    TOKEN_ENCODING_RATE_DEFAULT = 4.0 / 3.0  # English w/ Latin characters avg
+    def test_empty_content_exception(self):
+        """Test ValueError exception on empty content after preprocessing"""
+        with self.assertRaises(ValueError):
+            PieceWiseGPT("   ")
 
-    def __init__(self, content: str):
-        """
-        Initializes a new instance of the PieceWiseGPT class.
+    @mock.patch("os.getenv")
+    def test_missing_api_key(self, mock_getenv):
+        """Test ValueError exception for missing OPENAI_API_KEY"""
+        mock_getenv.side_effect = lambda x: None if x == "OPENAI_API_KEY" else "gpt-4.0"
+        with self.assertRaises(ValueError):
+            PieceWiseGPT(self.content)
 
-        Args:
-        - content (str): The input content string to process.
-
-        Raises:
-        - ValueError: If the content is empty after preprocessing or if there are issues with the API/environment variables.
-        """
-        self.content: str = content
-        self.window_size: int = self.CONTEXT_WINDOW_SIZE_DEFAULT
-        self.llm_model: str = self.LLM_MODEL_VERSION_MIN
-        self.llm_model_details: Dict[str, Any] = {}
-        self.llm_encoding: None
-        self.token_encoding_rate: float = self.TOKEN_ENCODING_RATE_DEFAULT
-        self.chunks: List[str] = []
-
-        self._preprocess()
-        self._validate_api()
-        self._token_encoding_rate()
-        self._load_prompt()
-        self._slice()
-
-    def _preprocess(self):
-        """
-        Processes the content by removing leading and trailing whitespace.
-
-        Raises:
-        - ValueError: If the content is empty after preprocessing.
-        """
-        self.content = self.content.strip()
-
-        if not self.content:
-            raise ValueError(
-                "Content is empty after preprocessing. No work to perform."
-            )
-
-    def _validate_api(self):
-        """
-        Validates the availability and correctness of OpenAI API and environment variables.
-
-        Raises:
-        - ValueError: If the API key or LLM model version is incorrect or missing, or if there's an issue connecting to OpenAI.
-        """
-        load_dotenv()
-
-        if not os.getenv("OPENAI_API_KEY"):
-            raise ValueError(
-                "Required environment variable OPENAI_API_KEY is missing or empty."
-            )
-
-        if os.getenv("LLM_MODEL") and not os.getenv("LLM_MODEL", "").startswith(
-            self.LLM_MODEL_VERSION_MIN
-        ):
-            raise ValueError(
-                "LLM_MODEL requires 'gpt-4 as a minimum. Please check your environment."
-            )
-
-        openai.api_key = os.getenv("OPENAI_API_KEY")
-        self.llm_model = os.getenv("LLM_MODEL")
-
-        # Fetch models and store information about the one we're using
-        try:
-            available_models = [model.id for model in openai.Model.list().data]
-            if self.llm_model and self.llm_model not in available_models:
-                raise ValueError(
-                    f"The model {self.llm_model} is not available or you don't have access to it."
-                )
-        except openai.error.OpenAIError as e:
-            raise ValueError(
-                f"Failed to fetch the list of models from OpenAI: {str(e)}"
-            )
-
-        # Update context window size if 32k is detected
-        if "gpt-4" in self.llm_model:
-            self.window_size = 8192
-
-        if "32k" in self.llm_model:
-            self.window_size = 32768
-
-        # Set the tiktoken encoder for the approved model
-        # TODO: Properly handle error cases
-        self.llm_encoding = tiktoken.encoding_for_model(self.llm_model)
-
-    def _token_encoding_rate(self):
-        # If content is <1000 characters then just sample the entire content
-        if len(self.content) < 1000:
-            sections = [self.content]
-        else:
-            # Else, divide the content into up to 4 random sections of up to 250 characters
-            sections = []
-            content_indices = list(range(len(self.content) - 250))
-            random.shuffle(content_indices)
-            for i in range(4):
-                start_index = content_indices[i]
-                sections.append(self.content[start_index : start_index + 250])
-
-        total_chars = sum(len(section) for section in sections)
-        total_tokens = sum(
-            len(self.llm_encoding.encode(section)) for section in sections
+    @mock.patch("os.getenv")
+    def test_invalid_llm_model(self, mock_getenv):
+        mock_getenv.side_effect = (
+            lambda k, default=None: "gpt-3" if k == "LLM_MODEL" else None
         )
+        with self.assertRaises(ValueError):
+            PieceWiseGPT(self.content)
 
-        # Get the ratio of total characters to the total number of tokens
-        self.token_embedding_rate = total_chars / total_tokens
-
-    def _load_prompt(self):
+    def test_language_samples(self):
+        print("Testing English sample...")
         with open(
-            "./prompts/3_get_last_semantic_boundary.txt", "r", encoding="utf-8"
-        ) as file:
-            self.prompt = file.read()
+            os.path.join(os.path.dirname(__file__), "data", "sample_english.txt"),
+            "r",
+            encoding="utf-8",
+        ) as f:
+            self.content = f.read()
 
-    def _slice(self):
-        available_input_tokens = self.window_size // 8
-        available_input_tokens -= len(self.llm_encoding.encode(self.prompt))
-        available_input_tokens -= 128  # padding
+        # Instantiate PieceWiseGPT class (English)
+        pwg = PieceWiseGPT(self.content)  # or whatever parameters you require
+        print(pwg.get())
 
-        char_count = int(available_input_tokens * self.token_embedding_rate)
+        print("Testing German sample...")
+        with open(
+            os.path.join(os.path.dirname(__file__), "data", "sample_german.txt"),
+            "r",
+            encoding="utf-8",
+        ) as f:
+            self.content = f.read()
 
-        content = self.content
+        # Instantiate PieceWiseGPT class (German)
+        pwg = PieceWiseGPT(self.content)
+        print(pwg.get())
 
-        while content:
-            # If the remaining content is less than what we need to slice
-            # we can just append it to the end of the chunks list
-            if len(content) <= char_count:
-                self.chunks.append(content)
-                break
+        print("Testing Japanese sample...")
+        with open(
+            os.path.join(os.path.dirname(__file__), "data", "sample_japanese.txt"),
+            "r",
+            encoding="utf-8",
+        ) as f:
+            self.content = f.read()
 
-            # Process the next chunk
-            prechunk = {"prechunk": content[:char_count]}
-            prechunk = json.dumps(prechunk)
+        # Instantiate PieceWiseGPT class (Japanese)
+        pwg = PieceWiseGPT(self.content)
+        print(pwg.get())
 
-            chunk = self._get_semantically_bound_chunk(prechunk)
+        # ... (additional tests can be added as needed)
 
-            if not chunk:
-                continue
 
-            # Avoid infinite loops due to unpredictably long whitespace
-            if all(c.isspace() for c in chunk):
-                break
-
-            self.chunks.append(chunk)
-
-            content = content[len(chunk) :]
-
-    def _get_semantically_bound_chunk(self, txt):
-        content = self.prompt + "\n\n[INPUT JSON CONTENT]\n\n" + txt
-        max_tokens = self.window_size // 2
-
-        completion = openai.ChatCompletion.create(
-            model=self.llm_model,
-            max_tokens=max_tokens,
-            temperature=1,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "The following is a conversation with an AI assistant labeled 'AI' with a user labeled 'Human'. The assistant is helpful, creative, clever, and very friendly. The assistant takes a deep breath and answers questions step by step.",
-                },
-                {"role": "user", "content": "Human: Hello, who are you?"},
-                {
-                    "role": "assistant",
-                    "content": "AI: I am an AI created by OpenAI. How can I help you today?",
-                },
-                {"role": "user", "content": f"Human: {content}"},
-            ],
-        )
-
-        response = completion.choices[0].message.content
-        response = self.extract_embedded_json(response)
-
-        return response
-
-    def extract_embedded_json(self, text):
-        pattern = r"(\{[^}]+\})"  # A simple pattern to match basic JSON objects
-        matches = re.findall(pattern, text)
-
-        valid_jsons = []
-        for match in matches:
-            try:
-                # Try to parse the matched string into a JSON object
-                parsed_json = json.loads(match)
-
-                # Check if the "chunk" property exists and is non-empty
-                if parsed_json.get("chunk"):
-                    valid_jsons.append(parsed_json.get("chunk"))
-
-            except json.JSONDecodeError:
-                # If decoding fails, move on to the next iteration
-                continue
-
-        # Return the last valid JSON found, or an empty string if none found
-        return valid_jsons[-1] if valid_jsons else ""
-
-    def get(self) -> List[str]:
-        """
-        Fetches the chunks processed by the PieceWiseGPT class.
-
-        Returns:
-        - List[str]: List of chunks.
-        """
-        return self.chunks
+if __name__ == "__main__":
+    unittest.main()
